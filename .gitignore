@@ -1,0 +1,31 @@
+
+# Composer Dependencies
+/vendor/
+
+# User Uploaded Content
+/uploads/
+
+# Cache and Log Files
+*.log
+*.cache
+.sass-cache/
+.phpunit.result.cache
+
+# Environment Files
+.env
+.env.local
+.env.*.local
+
+# IDE and Editor Folders
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+.DS_Store
+
+# Temporary Files
+*.swp
+*.swo
+.phpunit.result.cache
+temp/
+tmp/

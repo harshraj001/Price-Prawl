@@ -1,0 +1,14 @@
+{
+    "name": "priceprawl/website",
+    "description": "PricePrawl - Smart Price Tracking Website",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "phpmailer/phpmailer": "^6.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "PricePrawl\\": "src/"
+        }
+    }
+} 

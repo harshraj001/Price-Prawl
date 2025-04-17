@@ -1,0 +1,489 @@
+/* Dark mode styles for the entire site */
+
+/* Scrollbar */
+.dark ::-webkit-scrollbar-track {
+    background: #1A1A1A;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background-color: #3D3D3D;
+    border: 2px solid #1A1A1A;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+    background-color: #4D4D4D;
+}
+
+/* Body and general elements */
+.dark body {
+    background-color: #1A1A1A;
+    color: #E5E5E5;
+}
+.dark *:focus-visible {
+    outline: 2px solid #C19A6B;
+}
+
+/* Ticker Banner - Seamless Infinite Loop */
+.ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    height: 40px;
+    padding: 0;
+    background-color: inherit;
+    position: relative;
+}
+
+.ticker {
+    display: flex;
+    width: fit-content;
+    animation: ticker-scroll 25s linear infinite;
+}
+
+.ticker::after {
+    content: "";
+    width: 50px;
+}
+
+.ticker-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 30px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+@keyframes ticker-scroll {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(-50%, 0, 0);
+    }
+}
+
+/* Common elements */
+.dark .bg-white {
+    background-color: #1A1A1A;
+}
+.dark .bg-gray-50 {
+    background-color: #2D2D2D;
+}
+.dark .bg-gray-100 {
+    background-color: #3D3D3D;
+}
+.dark .text-gray-900 {
+    color: #E5E5E5;
+}
+.dark .text-gray-700 {
+    color: #B0B0B0;
+}
+.dark .text-gray-500 {
+    color: #A0A0A0;
+}
+.dark .border-gray-200 {
+    border-color: #3D3D3D;
+}
+.dark .border-gray-300 {
+    border-color: #4D4D4D;
+}
+.dark .hover\:bg-gray-100:hover {
+    background-color: #2D2D2D;
+}
+
+/* Shadows */
+.dark .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+}
+.dark .shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+.dark .shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+.dark .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+.dark .shadow-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+.dark .shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+}
+.dark .shadow-inner {
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+}
+.dark .shadow-none {
+    box-shadow: none;
+}
+
+/* Product cards */
+.dark .product-card {
+    background-color: #2D2D2D;
+    border-color: #3D3D3D;
+}
+.dark .product-title {
+    color: #E5E5E5;
+}
+.dark .product-price {
+    color: #C19A6B;
+}
+.dark .product-last-price {
+    color: #B0B0B0;
+}
+.dark .product-image-container {
+    background-color: #1A1A1A;
+    border-color: #3D3D3D;
+}
+.dark .product-site-logo {
+    background-color: #1A1A1A;
+}
+
+/* Category sidebar */
+.dark #categorySidebar h2 {
+    color: #E5E5E5;
+}
+.dark #categorySidebar a {
+    color: #B0B0B0;
+}
+.dark #categorySidebar a:hover {
+    color: #C19A6B;
+    background-color: rgba(172, 137, 104, 0.05);
+}
+.dark #categorySidebar a.active {
+    color: #C19A6B;
+    background-color: rgba(172, 137, 104, 0.1);
+}
+
+/* Loaders and spinners */
+.dark .loader {
+    border-color: #3D3D3D;
+    border-top-color: #C19A6B;
+}
+
+/* Form elements */
+.dark input, .dark textarea, .dark select {
+    background-color: #2D2D2D;
+    border-color: #3D3D3D;
+    color: #E5E5E5;
+}
+.dark input::placeholder, .dark textarea::placeholder {
+    color: #A0A0A0;
+}
+
+/* Buttons */
+.dark .btn-primary {
+    background-color: #C19A6B;
+    color: #1A1A1A;
+}
+.dark .btn-primary:hover {
+    background-color: #D4B48C;
+}
+.dark .btn-secondary {
+    background-color: #3D3D3D;
+    color: #E5E5E5;
+}
+.dark .btn-secondary:hover {
+    background-color: #4D4D4D;
+}
+
+/* Tables */
+.dark table {
+    border-color: #3D3D3D;
+}
+.dark th {
+    background-color: #2D2D2D;
+    color: #E5E5E5;
+}
+.dark td {
+    border-color: #3D3D3D;
+    color: #B0B0B0;
+}
+.dark tr:hover {
+    background-color: #2D2D2D;
+}
+
+/* Alerts and notifications */
+.dark .alert-success {
+    background-color: rgba(40, 167, 69, 0.2);
+    border-color: #28a745;
+    color: #75b798;
+}
+.dark .alert-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+    border-color: #dc3545;
+    color: #ea868f;
+}
+.dark .alert-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    border-color: #ffc107;
+    color: #ffda6a;
+}
+.dark .alert-info {
+    background-color: rgba(23, 162, 184, 0.2);
+    border-color: #17a2b8;
+    color: #6edff6;
+}
+
+/* Product page specific dark mode styles */
+.dark .bg-brand-header {
+    background-color: #2D2D2D;
+}
+.dark .bg-gradient-to-r.from-blue-50.to-white {
+    background: linear-gradient(to right, #2D2D2D, #1A1A1A);
+}
+.dark .bg-gradient-to-r.from-indigo-50.to-white {
+    background: linear-gradient(to right, #2D2D2D, #1A1A1A);
+}
+.dark .bg-gradient-to-r.from-purple-50.to-white {
+    background: linear-gradient(to right, #2D2D2D, #1A1A1A);
+}
+.dark .bg-green-100 {
+    background-color: rgba(40, 167, 69, 0.2);
+}
+.dark .bg-yellow-100 {
+    background-color: rgba(255, 193, 7, 0.2);
+}
+.dark .bg-red-100 {
+    background-color: rgba(220, 53, 69, 0.2);
+}
+.dark .bg-blue-100 {
+    background-color: rgba(23, 162, 184, 0.2);
+}
+.dark .text-green-800 {
+    color: #75b798;
+}
+.dark .text-yellow-800 {
+    color: #ffda6a;
+}
+.dark .text-red-800 {
+    color: #ea868f;
+}
+.dark .text-blue-800 {
+    color: #6edff6;
+}
+.dark .border-green-200 {
+    border-color: rgba(40, 167, 69, 0.3);
+}
+.dark .border-yellow-200 {
+    border-color: rgba(255, 193, 7, 0.3);
+}
+.dark .border-red-200 {
+    border-color: rgba(220, 53, 69, 0.3);
+}
+.dark .border-blue-200 {
+    border-color: rgba(23, 162, 184, 0.3);
+}
+
+/* Highcharts dark mode */
+.dark .highcharts-background {
+    fill: #1A1A1A !important;
+}
+.dark .highcharts-title {
+    fill: #E5E5E5 !important;
+}
+.dark .highcharts-subtitle {
+    fill: #B0B0B0 !important;
+}
+.dark .highcharts-axis-labels {
+    fill: #B0B0B0 !important;
+}
+.dark .highcharts-axis-title {
+    fill: #B0B0B0 !important;
+}
+.dark .highcharts-legend-item text {
+    fill: #B0B0B0 !important;
+}
+.dark .highcharts-tooltip {
+    fill: #2D2D2D !important;
+    stroke: #3D3D3D !important;
+}
+.dark .highcharts-tooltip text {
+    fill: #E5E5E5 !important;
+}
+.dark .highcharts-grid-line {
+    stroke: #3D3D3D !important;
+}
+.dark .highcharts-axis-line {
+    stroke: #3D3D3D !important;
+}
+.dark .highcharts-tick {
+    stroke: #3D3D3D !important;
+}
+
+/* Product Page Specific Dark Mode Styles */
+.dark .product-title {
+    color: var(--dark-brand-text-primary);
+}
+
+.dark .product-price {
+    color: var(--dark-brand-accent);
+}
+
+.dark .product-description {
+    color: var(--dark-brand-text-secondary);
+}
+
+.dark .product-meta {
+    color: var(--dark-brand-text-secondary);
+}
+
+.dark .product-meta strong {
+    color: var(--dark-brand-text-primary);
+}
+
+.dark .product-specs {
+    background-color: var(--dark-brand-bg-light);
+    border-color: var(--dark-brand-border);
+}
+
+.dark .product-specs-title {
+    color: var(--dark-brand-text-primary);
+}
+
+.dark .product-specs-item {
+    border-color: var(--dark-brand-border);
+}
+
+.dark .product-specs-label {
+    color: var(--dark-brand-text-secondary);
+}
+
+.dark .product-specs-value {
+    color: var(--dark-brand-text-primary);
+}
+
+.dark .product-gallery {
+    background-color: var(--dark-brand-bg-light);
+}
+
+.dark .product-gallery-thumb {
+    border-color: var(--dark-brand-border);
+}
+
+.dark .product-gallery-thumb.active {
+    border-color: var(--dark-brand-accent);
+}
+
+.dark .product-gallery-nav {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: var(--dark-brand-text-primary);
+}
+
+.dark .product-gallery-close {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: var(--dark-brand-text-primary);
+}
+
+.dark .product-loading {
+    background-color: var(--dark-brand-bg-light);
+}
+
+.dark .product-loading-text {
+    color: var(--dark-brand-text-secondary);
+}
+
+.dark .product-error {
+    background-color: var(--dark-brand-bg-light);
+    border-color: var(--dark-brand-border);
+}
+
+.dark .product-error-text {
+    color: var(--dark-brand-text-secondary);
+}
+
+.dark .product-retry-button {
+    background-color: var(--dark-brand-accent);
+    color: var(--dark-brand-text-primary);
+}
+
+.dark .product-retry-button:hover {
+    background-color: var(--dark-brand-accent-hover);
+}
+
+/* Price History Chart Dark Mode Styles */
+.dark .highcharts-background {
+    fill: var(--dark-brand-bg-light);
+}
+
+.dark .highcharts-title {
+    fill: var(--dark-brand-text-primary);
+}
+
+.dark .highcharts-axis-labels {
+    fill: var(--dark-brand-text-secondary);
+}
+
+.dark .highcharts-axis-line {
+    stroke: var(--dark-brand-border);
+}
+
+.dark .highcharts-grid-line {
+    stroke: var(--dark-brand-border);
+}
+
+.dark .highcharts-tooltip {
+    fill: var(--dark-brand-bg-light);
+    stroke: var(--dark-brand-border);
+}
+
+.dark .highcharts-tooltip text {
+    fill: var(--dark-brand-text-primary);
+}
+
+.dark .highcharts-legend-item text {
+    fill: var(--dark-brand-text-primary);
+}
+
+.dark .highcharts-legend-item:hover text {
+    fill: var(--dark-brand-accent);
+}
+
+.dark .highcharts-point {
+    fill: var(--dark-brand-accent);
+    stroke: var(--dark-brand-accent);
+}
+
+.dark .highcharts-point:hover {
+    fill: var(--dark-brand-accent-hover);
+    stroke: var(--dark-brand-accent-hover);
+}
+
+.dark .highcharts-area {
+    fill: var(--dark-brand-accent);
+    fill-opacity: 0.2;
+}
+
+/* Buying Suggestion Dark Mode Styles */
+.dark .suggestion-section {
+    background-color: var(--dark-brand-bg-light);
+    border-color: var(--dark-brand-border);
+}
+
+.dark .suggestion-title {
+    color: var(--dark-brand-text-primary);
+}
+
+.dark .suggestion-text {
+    color: var(--dark-brand-text-secondary);
+}
+
+.dark .suggestion-icon {
+    color: var(--dark-brand-accent);
+}
+
+/* Price Stats Dark Mode Styles */
+.dark .price-stat {
+    background-color: var(--dark-brand-bg-light);
+    border-color: var(--dark-brand-border);
+}
+
+.dark .price-stat-label {
+    color: var(--dark-brand-text-secondary);
+}
+
+.dark .price-stat-value {
+    color: var(--dark-brand-accent);
+} 
