@@ -31,9 +31,15 @@ $wishlist_stmt->execute([$user_id]);
 $wishlist_data = $wishlist_stmt->fetch();
 $wishlist_count = $wishlist_data['wishlist_count'];
 
-// Get recent activity - initialize empty array since table may not exist yet
-// TODO: Create a user_activity table or modify this section if needed
-$activities = [];
+// Get recent activity from user_activity table
+$activity_stmt = $pdo->prepare("
+    SELECT * FROM user_activity 
+    WHERE user_id = ? 
+    ORDER BY timestamp DESC 
+    LIMIT 5
+");
+$activity_stmt->execute([$user_id]);
+$activities = $activity_stmt->fetchAll();
 
 // Handle success/error messages from update_profile.php
 $profile_updated = isset($_GET['updated']) && $_GET['updated'] == '1';
@@ -81,9 +87,8 @@ include 'includes/header.php';
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Sidebar Navigation -->
         <div class="lg:col-span-1">
-            <div class="bg-brand-header dark:bg-dark-brand-header rounded-xl overflow-hidden shadow-card dark:shadow-dark-card border border-brand-border/30 dark:border-dark-brand-border/50 sticky top-24">
-                <div class="p-6">
-                    <div class="flex items-center mb-6">                        <div class="w-14 h-14 rounded-full bg-brand-accent dark:bg-dark-brand-accent text-brand-text-on-accent dark:text-dark-brand-text-on-accent flex items-center justify-center text-2xl font-semibold">
+            <div class="bg-brand-header dark:bg-dark-brand-header rounded-xl overflow-hidden shadow-card dark:shadow-dark-card border border-brand-border/30 dark:border-dark-brand-border/50 sticky top-24">                <div class="p-6">
+                    <div class="flex items-center mb-6">                        <div class="w-14 h-14 rounded-full bg-brand-accent dark:bg-dark-brand-accent text-brand-text-on-accent dark:text-dark-brand-text-on-accent flex items-center justify-center text-2xl font-semibold" style="aspect-ratio: 1/1; min-width: 56px;">
                             <?php 
                             // Get user initials from first_name and last_name
                             $initials = '';
@@ -96,12 +101,9 @@ include 'includes/header.php';
                             echo $initials; 
                             ?>
                         </div>
-                        <div class="ml-4">                            <h2 class="text-lg font-semibold text-brand-text-primary dark:text-dark-brand-text-primary">
+                        <div class="ml-4"><h2 class="text-lg font-semibold text-brand-text-primary dark:text-dark-brand-text-primary">
                                 <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>
                             </h2>
-                            <p class="text-sm text-brand-text-secondary dark:text-dark-brand-text-secondary">
-                                <?php echo htmlspecialchars($user['email']); ?>
-                            </p>
                         </div>
                     </div>
                     

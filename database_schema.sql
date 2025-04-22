@@ -95,4 +95,21 @@ CREATE TABLE IF NOT EXISTS alert_notifications (
     created_at DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (alert_id) REFERENCES price_alerts(id) ON DELETE CASCADE
-) ENGINE=InnoDB; 
+) ENGINE=InnoDB;
+
+-- User Activity Log table
+CREATE TABLE IF NOT EXISTS user_activity (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    activity_type VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    details TEXT,
+    ip_address VARCHAR(45),
+    user_agent VARCHAR(255),
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Index for faster querying of user activities
+CREATE INDEX idx_user_activity_user_timestamp ON user_activity(user_id, timestamp);
+CREATE INDEX idx_user_activity_type ON user_activity(activity_type);

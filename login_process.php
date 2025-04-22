@@ -56,11 +56,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Update last login time
         $stmt = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
         $stmt->execute([$user['id']]);
-        
-        // Set session variables
+          // Set session variables
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_name'] = $user['first_name'];
+        
+        // Log user login activity
+        require_once 'includes/activity_logger.php';
+        logAuthActivity($user['id'], 'login', [
+            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'login_time' => date('Y-m-d H:i:s')
+        ]);
         
         // Set remember me cookie if requested
         if ($remember) {
@@ -77,8 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Set cookie
             setcookie('remember_token', $token, $expires, '/', '', true, true);
         }
-        
-        // Check if there's a redirect URL in session
+          // Check if there's a redirect URL in session
         if (isset($_SESSION['redirect_after_login'])) {
             $redirectUrl = $_SESSION['redirect_after_login'];
             unset($_SESSION['redirect_after_login']);
@@ -86,8 +91,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
         
-        // Redirect to account page
-        header("Location: account.php");
+        // Redirect to index page with welcome message
+        $_SESSION['welcome_message'] = "logged_in";
+        header("Location: index.php");
         exit();
         
     } catch (PDOException $e) {

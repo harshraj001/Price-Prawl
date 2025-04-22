@@ -1,0 +1,56 @@
+/* 
+   Loader Animation Styles
+   This file contains standardized loader animations for use throughout the site.
+*/
+
+@keyframes spinner-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loader {
+    border: 4px solid rgba(172, 137, 104, 0.2);
+    border-top: 4px solid #865D36;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spinner-rotate 1s linear infinite;
+    margin: 20px auto;
+}
+
+/* Dark mode styling for loaders */
+.dark .loader {
+    border: 4px solid rgba(193, 154, 107, 0.3);
+    border-top: 4px solid #C19A6B;
+}
+
+/* Loader size variations */
+.loader.loader-sm {
+    width: 20px;
+    height: 20px;
+    border-width: 3px;
+}
+
+.loader.loader-lg {
+    width: 40px;
+    height: 40px;
+    border-width: 5px;
+}
+
+/* Special loader that appears over content */
+.overlay-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.dark .overlay-loader {
+    background-color: rgba(24, 24, 24, 0.7);
+}

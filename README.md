@@ -78,10 +78,8 @@ PricePrawl is a comprehensive price tracking application that helps users monito
    - Set your database credentials and other configuration variables
 
 4. **Dependencies**
-   - Install dependencies using Composer:
-   ```
-   composer install
-   ```
+   - All required dependencies are pre-included in the project
+   - No additional installation needed (PHPMailer and other packages are already included)
 
 5. **Server Configuration**
    - Configure your web server (Apache/Nginx) to serve the application
@@ -93,22 +91,19 @@ Update the `includes/config.php` file with your specific configuration:
 
 ```php
 // Database Configuration
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'priceprawl');
-define('DB_USER', 'your_username');
-define('DB_PASS', 'your_password');
-
-// Email Configuration
-define('SMTP_HOST', 'smtp.example.com');
-define('SMTP_PORT', 587);
-define('SMTP_USER', 'your_email@example.com');
-define('SMTP_PASS', 'your_password');
-define('MAIL_FROM', 'noreply@priceprawl.com');
-define('MAIL_FROM_NAME', 'PricePrawl');
-
-// API Configuration
-define('API_PROXY', 'https://cors-ninja.harshraj864869.workers.dev/proxy?url=');
-define('API_BASE_PATH', 'https://buyhatke.com/price-history-deals');
+$config = [
+    'db_host' => 'localhost',
+    'db_name' => 'priceprawl',
+    'db_user' => 'your_username',
+    'db_pass' => 'your_password',
+    'db_charset' => 'utf8mb4',
+    
+    // Email settings are already configured in the includes/config.php file
+    
+    // Application Settings
+    'site_url' => 'http://localhost:8080/dashboard',
+    'site_name' => 'PricePrawl',
+];
 ```
 
 ## 🚀 Usage
@@ -190,6 +185,15 @@ PricePrawl tracks prices across numerous Indian e-commerce platforms, including:
 - Lenskart
 - Decathlon
 - And many more!
+
+## 🔄 Recent Updates
+
+### April 2025 Updates
+- **Enhanced URL Processing**: Improved handling of shared links and shortened URLs with retry mechanism
+- **Fixed Loader Animation**: Added dedicated CSS file for consistent loader animations across all pages
+- **UI Improvements**: Fixed product card layout on price drops page to match trending page design
+- **Error Handling**: Better display of error messages throughout the application
+- **Performance Optimizations**: Reduced loading times for product listings and search results
 
 ## 🤝 Contributing
 

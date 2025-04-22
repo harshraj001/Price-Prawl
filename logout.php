@@ -10,6 +10,15 @@ session_start();
 // Include database connection for remember token cleanup
 require_once 'includes/db_connect.php';
 
+// Log logout activity if user is logged in
+if (isset($_SESSION['user_id'])) {
+    require_once 'includes/activity_logger.php';
+    logAuthActivity($_SESSION['user_id'], 'logout', [
+        'logout_time' => date('Y-m-d H:i:s'),
+        'ip_address' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+    ]);
+}
+
 // Check if remember token cookie exists
 if (isset($_COOKIE['remember_token'])) {
     // Delete token from database

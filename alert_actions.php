@@ -58,10 +58,19 @@ switch ($action) {
                     WHERE wishlist_item_id = ? AND user_id = ?
                 ");
                 $result = $update_stmt->execute([$target_price, $wishlist_item_id, $user_id]);
-                
-                if ($result) {
+                  if ($result) {
                     // Send confirmation email
                     sendAlertConfirmationEmail($item, $target_price, true);
+                    
+                    // Log price alert update activity
+                    require_once 'includes/activity_logger.php';
+                    logAlertActivity($user_id, 'updated', [
+                        'wishlist_item_id' => $wishlist_item_id,
+                        'product_name' => $item['product_name'],
+                        'target_price' => $target_price,
+                        'current_price' => $item['current_price'] ?? null,
+                        'retailer' => $item['retailer'] ?? null
+                    ]);
                     
                     $_SESSION['alert_message'] = 'Price alert updated successfully';
                     $_SESSION['alert_success'] = true;
@@ -81,10 +90,19 @@ switch ($action) {
                     $wishlist_item_id, 
                     $target_price
                 ]);
-                
-                if ($result) {
+                  if ($result) {
                     // Send confirmation email
                     sendAlertConfirmationEmail($item, $target_price, false);
+                    
+                    // Log price alert creation activity
+                    require_once 'includes/activity_logger.php';
+                    logAlertActivity($user_id, 'set', [
+                        'wishlist_item_id' => $wishlist_item_id,
+                        'product_name' => $item['product_name'],
+                        'target_price' => $target_price,
+                        'current_price' => $item['current_price'] ?? null,
+                        'retailer' => $item['retailer'] ?? null
+                    ]);
                     
                     $_SESSION['alert_message'] = 'Price alert set successfully';
                     $_SESSION['alert_success'] = true;

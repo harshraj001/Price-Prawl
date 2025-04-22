@@ -17,6 +17,16 @@ if (empty($query)) {
     exit;
 }
 
+// Log search activity if user is logged in
+session_start();
+if (isset($_SESSION['user_id'])) {
+    require_once 'includes/activity_logger.php';
+    logSearchActivity($_SESSION['user_id'], $query, [
+        'search_time' => date('Y-m-d H:i:s'),
+        'ip_address' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+    ]);
+}
+
 // URL validation helper functions
 /**
  * Checks if a string contains a substring.
@@ -544,9 +554,40 @@ function determinePosFromUrl($url) {
     return $pos;
 }
 
+// Check if this is a short URL that needs client-side resolution
+function isShortUrl($url) {
+    $shortUrlPatterns = [
+        '/amzn\.(in|to|com)\/[a-zA-Z0-9]+/i',
+        '/flip\.kart\//i',
+        '/myntra\.app\//i',
+        '/bit\.ly\//i',
+        '/goo\.gl\//i',
+        '/tinyurl\.com\//i'
+    ];
+    
+    foreach ($shortUrlPatterns as $pattern) {
+        if (preg_match($pattern, $url)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Process the URL and determine product ID and retailer ID
 $url = $query;
 $pos = determinePosFromUrl($url);
+
+// Check if we should try to process this URL
+// First, handle obvious short URLs
+if (($pos === 0 || empty($pos)) && isShortUrl($url)) {
+    // Encode the URL for passing to the processor page
+    $encodedUrl = urlencode($url);
+    
+    // Redirect to the URL processor page
+    header("Location: url_processor.php?url=" . $encodedUrl);
+    exit;
+}
+
 $pid = extractPidByPos($pos, $url);
 
 // If product ID is found and POS is valid, redirect to product page
@@ -554,8 +595,10 @@ if (!empty($pid) && !empty($pos)) {
     header("Location: product.php?url=" . urlencode($url) . "&pid=" . urlencode($pid) . "&pos=" . urlencode($pos));
     exit;
 } else {
-    // If no product ID or POS is found, redirect back with error
-    header("Location: index.php?error=invalid_url&query=" . urlencode($query));
+    // For invalid URLs or when we can't extract proper product information, 
+    // try processing it silently through the URL processor
+    $encodedUrl = urlencode($url);
+    header("Location: url_processor.php?url=" . $encodedUrl . "&silent=1");
     exit;
 }
 ?>

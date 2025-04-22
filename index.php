@@ -24,9 +24,11 @@ require_once('includes/db_connect.php');
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
     <!-- Theme Switcher -->
-    <script src="./js/theme-switcher.js" defer></script>
-    <!-- Navigation Script for Hamburger -->
+    <script src="./js/theme-switcher.js" defer></script>    <!-- Navigation Script for Hamburger -->
     <script src="./js/navigation.js" defer></script>
+    
+    <!-- Wishlist functionality -->
+    <script src="./js/wishlist.js" defer></script>
 
     <!-- Dark Mode CSS (Link kept for structure, content should be minimal/empty) -->
     <link rel="stylesheet" href="css/dark-mode.css">    <!-- Alpine.js -->
@@ -76,11 +78,27 @@ require_once('includes/db_connect.php');
         ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #DBCFBF; } ::-webkit-scrollbar-thumb { background-color: #AC8968; border-radius: 10px; border: 2px solid #DBCFBF; } ::-webkit-scrollbar-thumb:hover { background-color: #93785B; }
         .dark ::-webkit-scrollbar-track { background: #181818; } .dark ::-webkit-scrollbar-thumb { background-color: #4F4F4F; border: 2px solid #181818; } .dark ::-webkit-scrollbar-thumb:hover { background-color: #686868; }
         *:focus-visible { outline: 2px solid theme('colors.brand-accent'); outline-offset: 2px; border-radius: 3px; } .dark *:focus-visible { outline: 2px solid theme('colors.dark-brand-accent'); }
-        .ticker-wrap { width: 100%; overflow: hidden; height: 40px; padding: 0; box-sizing: border-box; } .ticker-item { display: inline-flex; align-items: center; padding: 0 35px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap; height: 40px; flex-shrink: 0; }
-        /* Loader Style with Dark Mode Fix */
-        .loader { border: 4px solid rgba(172, 137, 104, 0.2); border-top-color: theme('colors.brand-accent'); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
-        .dark .loader { border: 4px solid rgba(193, 154, 107, 0.3); border-top-color: theme('colors.dark-brand-accent'); }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .ticker-wrap { width: 100%; overflow: hidden; height: 40px; padding: 0; box-sizing: border-box; } .ticker-item { display: inline-flex; align-items: center; padding: 0 35px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap; height: 40px; flex-shrink: 0; }        /* Loader Style with Animation Fix */
+        @keyframes spinner-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loader { 
+            border: 4px solid rgba(172, 137, 104, 0.2); 
+            border-top: 4px solid #865D36; 
+            border-radius: 50%; 
+            width: 30px; 
+            height: 30px; 
+            animation-name: spinner-rotate;
+            animation-duration: 1s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            margin: 20px auto; 
+        }
+        .dark .loader { 
+            border: 4px solid rgba(193, 154, 107, 0.3); 
+            border-top: 4px solid #C19A6B; 
+        }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } .hide-scrollbar::-webkit-scrollbar { display: none; }
         .dark .hero-heading { text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
         .scroll-button { opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; } .scroll-button.is-visible { opacity: 0.6; visibility: visible; } .scroll-button.is-visible:hover { opacity: 1; }
@@ -129,12 +147,12 @@ require_once('includes/db_connect.php');
                     <?php if (isset($_SESSION['user_id']) && isset($_SESSION['user_name'])): ?>
                     <!-- User is logged in - show initials with dropdown -->
                     <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" @click.away="open = false" title="Account" class="p-2 rounded-full bg-brand-accent dark:bg-dark-brand-accent text-brand-text-on-accent dark:text-dark-brand-text-on-accent hover:bg-brand-accent-hover dark:hover:bg-dark-brand-accent-hover transition-colors duration-200 font-semibold w-8 h-8 flex items-center justify-center">
+                        <button @click="open = !open" @click.outside="open = false" title="Account" class="p-2 rounded-full bg-brand-accent dark:bg-dark-brand-accent text-brand-text-on-accent dark:text-dark-brand-text-on-accent hover:bg-brand-accent-hover dark:hover:bg-dark-brand-accent-hover transition-colors duration-200 font-semibold w-8 h-8 flex items-center justify-center">
                             <?php echo substr($_SESSION['user_name'], 0, 1); ?>
                         </button>
                         
                         <!-- Dropdown menu -->
-                        <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-brand-header dark:bg-dark-brand-header border border-brand-border/40 dark:border-dark-brand-border/50 overflow-hidden z-50" style="display: none;">
+                        <div x-cloak x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-brand-header dark:bg-dark-brand-header border border-brand-border/40 dark:border-dark-brand-border/50 overflow-hidden z-50">
                             <div class="py-1">
                                 <a href="account.php" class="block px-4 py-2 text-sm text-brand-text-primary dark:text-dark-brand-text-primary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle">Account Settings</a>
                                 <hr class="my-1 border-brand-border/40 dark:border-dark-brand-border/40">
@@ -161,20 +179,13 @@ require_once('includes/db_connect.php');
                 <a href="supported-sites.php" class="text-sm font-medium py-1 transition-colors duration-200 <?php echo ($currentPage == 'supported-sites.php') ? 'text-brand-accent dark:text-dark-brand-text-primary font-semibold' : 'text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-brand-accent dark:hover:text-dark-brand-text-primary'; ?>">Supported Sites</a>
             </nav>
 
-            <!-- Search Bar (Small Screens) -->
-            <div class="container mx-auto px-4 sm:px-6 py-3 md:hidden border-t border-brand-border/40 dark:border-dark-brand-border/50">
-                 <form action="search.php" method="GET" class="relative">
-                    <span class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-brand-text-secondary dark:text-dark-brand-text-secondary pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg></span>
-                    <input type="text" name="query_mobile" placeholder="Search products..." class="w-full pl-11 pr-4 py-2.5 rounded-lg bg-brand-bg-light/80 dark:bg-dark-brand-bg-light/80 border border-brand-border/60 dark:border-dark-brand-border/70 focus:border-brand-accent dark:focus:border-dark-brand-accent focus:ring-1 focus:ring-brand-accent dark:focus:ring-dark-brand-accent focus:outline-none text-brand-text-primary dark:text-dark-brand-text-primary placeholder-brand-text-secondary dark:placeholder-dark-brand-text-secondary text-sm transition duration-200 shadow-inner"/>
-                 </form>
-            </div>
 
              <!-- Mobile Navigation Menu -->
              <div id="mobile-menu" class="md:hidden hidden absolute top-full left-0 right-0 bg-brand-header dark:bg-dark-brand-header shadow-lg border-t border-brand-border/40 dark:border-dark-brand-border/50 z-40 transition-transform duration-300 ease-in-out transform origin-top scale-y-0">
                  <nav class="px-4 pt-2 pb-4 space-y-1">
-                    <a href="trending.php" class="block px-3 py-2 rounded-md text-base font-medium text-brand-text-secondary dark:text-dark-brand-text-secondary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle hover:text-brand-accent dark:hover:text-dark-brand-accent <?php echo ($currentPage == 'trending.php' || $currentPage == 'index.php') ? 'bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle text-brand-accent dark:text-dark-brand-accent font-semibold' : ''; ?>">Trending Deals</a>
-                    <a href="price-drops.php" class="block px-3 py-2 rounded-md text-base font-medium text-brand-text-secondary dark:text-dark-brand-text-secondary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle hover:text-brand-accent dark:hover:text-dark-brand-accent <?php echo ($currentPage == 'price-drops.php') ? 'bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle text-brand-accent dark:text-dark-brand-accent font-semibold' : ''; ?>">Price Drops</a>
-                    <a href="supported-sites.php" class="block px-3 py-2 rounded-md text-base font-medium text-brand-text-secondary dark:text-dark-brand-text-secondary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle hover:text-brand-accent dark:hover:text-dark-brand-accent <?php echo ($currentPage == 'supported-sites.php') ? 'bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle text-brand-accent dark:text-dark-brand-accent font-semibold' : ''; ?>">Supported Sites</a>
+                    <a href="trending.php" class="block px-3 py-2 rounded-md text-base font-medium text-brand-text-secondary dark:text-dark-brand-text-secondary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle hover:text-brand-accent dark:hover:text-dark-brand-accent <?php echo ($currentPage == 'trending.php' || $currentPage == 'index.php') ? 'bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle text-brand-accent dark:text-dark-accent font-semibold' : ''; ?>">Trending Deals</a>
+                    <a href="price-drops.php" class="block px-3 py-2 rounded-md text-base font-medium text-brand-text-secondary dark:text-dark-brand-text-secondary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle hover:text-brand-accent dark:hover:text-dark-brand-accent <?php echo ($currentPage == 'price-drops.php') ? 'bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle text-brand-accent dark:text-dark-accent font-semibold' : ''; ?>">Price Drops</a>
+                    <a href="supported-sites.php" class="block px-3 py-2 rounded-md text-base font-medium text-brand-text-secondary dark:text-dark-brand-text-secondary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle hover:text-brand-accent dark:hover:text-dark-brand-accent <?php echo ($currentPage == 'supported-sites.php') ? 'bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle text-brand-accent dark:text-dark-accent font-semibold' : ''; ?>">Supported Sites</a>
                     <a href="wishlist.php" class="block px-3 py-2 rounded-md text-base font-medium text-brand-text-secondary dark:text-dark-brand-text-secondary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle hover:text-brand-accent dark:hover:text-dark-brand-accent">Wishlist/Alerts</a>
                     <a href="account.php" class="block px-3 py-2 rounded-md text-base font-medium text-brand-text-secondary dark:text-dark-brand-text-secondary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle hover:text-brand-accent dark:hover:text-dark-brand-accent">Account</a>
                  </nav>
@@ -188,20 +199,52 @@ require_once('includes/db_connect.php');
 
         <!-- Main Content -->
         <main class="flex-grow flex flex-col items-center px-4">
-            <!-- Hero Section (Keep as is) -->
-             <section class="text-center max-w-4xl w-full min-h-screen flex flex-col justify-center items-center py-12 md:py-20">
+            <!-- Hero Section (Keep as is) -->            <section class="text-center max-w-4xl w-full min-h-screen flex flex-col justify-center items-center py-12 md:py-20">
+                <?php if (isset($_SESSION['user_id']) && isset($_SESSION['user_name'])): ?>
+                <div class="mb-4">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-brand-text-primary dark:text-dark-brand-text-primary tracking-tight">
+                        Hello, <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-brand-accent-hover dark:from-dark-brand-accent dark:to-dark-brand-accent-hover"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+                    </h2>
+                </div>
+                <?php endif; ?>
                 <h1 class="hero-heading text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-5 text-brand-text-primary dark:text-dark-brand-text-primary leading-tight tracking-tight">Find the <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-border via-brand-accent to-brand-accent-hover dark:from-dark-brand-border dark:via-dark-brand-accent dark:to-dark-brand-accent-hover">Lowest Price,</span><br /> Every Time.</h1>
-                <p class="text-lg md:text-xl text-brand-text-secondary dark:text-dark-brand-text-secondary mb-8 max-w-2xl mx-auto leading-relaxed">Your ultimate tool for tracking price history and discovering the best deals across the web.</p>
-                <div class="max-w-2xl mx-auto w-full mb-10">
-                     <form action="search.php" method="GET" class="relative flex shadow-lg dark:shadow-dark-card transform transition-all duration-300 hover:scale-[1.01] hover:shadow-xl dark:hover:shadow-lg"><span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-text-secondary dark:text-dark-brand-text-secondary pointer-events-none z-10"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg></span><input type="text" name="query" placeholder="Enter product URL or name..." value="<?php echo isset($_GET['query']) ? htmlspecialchars($_GET['query']) : ''; ?>" class="w-full pl-12 pr-4 py-4 rounded-l-lg bg-brand-header dark:bg-dark-brand-header border-2 border-r-0 border-brand-border/70 dark:border-dark-brand-border/60 focus:border-brand-accent dark:focus:border-dark-brand-accent focus:ring-2 focus:ring-brand-accent/30 dark:focus:ring-dark-brand-accent/30 focus:outline-none text-brand-text-primary dark:text-dark-brand-text-primary placeholder-brand-text-secondary dark:placeholder-dark-brand-text-secondary transition duration-200 text-base" /><button type="submit" class="px-7 bg-brand-accent dark:bg-dark-brand-accent hover:bg-brand-accent-hover dark:hover:bg-dark-brand-accent-hover text-brand-text-on-accent dark:text-dark-brand-text-on-accent rounded-r-lg font-semibold transition-colors duration-200 flex-shrink-0 border-2 border-brand-accent dark:border-dark-brand-accent hover:border-brand-accent-hover dark:hover:border-dark-brand-accent-hover text-base hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-brand-accent dark:focus:ring-offset-dark-brand-header">Search</button></form>
-                    <?php if (isset($_GET['error']) && $_GET['error'] == 'invalid_url'): ?>
-                    <div class="mt-4 p-3 bg-red-100 dark:bg-red-500/10 border border-red-300 dark:border-red-500/30 text-red-800 dark:text-red-300 rounded-lg shadow-sm"><div class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 flex-shrink-0 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span class="text-sm">Unable to process this URL. Please enter a valid product URL from a supported retailer.</span></div></div>
+                <p class="text-lg md:text-xl text-brand-text-secondary dark:text-dark-brand-text-secondary mb-8 max-w-2xl mx-auto leading-relaxed">Your ultimate tool for tracking price history and discovering the best deals across the web.</p>                <div class="max-w-2xl mx-auto w-full mb-10">
+                     <form action="search.php" method="GET" class="relative flex shadow-lg dark:shadow-dark-card transform transition-all duration-300 hover:scale-[1.01] hover:shadow-xl dark:hover:shadow-lg"><span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-text-secondary dark:text-dark-brand-text-secondary pointer-events-none z-10"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg></span><input type="text" name="query" placeholder="Enter product URL..." value="<?php echo isset($_GET['query']) ? htmlspecialchars($_GET['query']) : ''; ?>" class="w-full pl-12 pr-4 py-4 rounded-l-lg bg-brand-header dark:bg-dark-brand-header border-2 border-r-0 border-brand-border/70 dark:border-dark-brand-border/60 focus:border-brand-accent dark:focus:border-dark-brand-accent focus:ring-2 focus:ring-brand-accent/30 dark:focus:ring-dark-brand-accent/30 focus:outline-none text-brand-text-primary dark:text-dark-brand-text-primary placeholder-brand-text-secondary dark:placeholder-dark-brand-text-secondary transition duration-200 text-base" /><button type="submit" class="px-7 bg-brand-accent dark:bg-dark-brand-accent hover:bg-brand-accent-hover dark:hover:bg-dark-brand-accent-hover text-brand-text-on-accent dark:text-dark-brand-text-on-accent rounded-r-lg font-semibold transition-colors duration-200 flex-shrink-0 border-2 border-brand-accent dark:border-dark-brand-accent hover:border-brand-accent-hover dark:hover:border-dark-brand-accent-hover text-base hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-brand-accent dark:focus:ring-offset-dark-brand-header">Search</button></form>
+                    
+                    <?php if (isset($_GET['error'])): ?>
+                        <?php if ($_GET['error'] == 'invalid_url'): ?>
+                            <div class="mt-4 p-3 bg-red-100 dark:bg-red-500/10 border border-red-300 dark:border-red-500/30 text-red-800 dark:text-red-300 rounded-lg shadow-sm">
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 flex-shrink-0 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-sm">Unable to process this URL. Please enter a valid product URL from a supported retailer.</span>
+                                </div>
+                            </div>
+                        <?php elseif ($_GET['error'] == 'processing_failed'): ?>
+                            <div class="mt-4 p-3 bg-red-100 dark:bg-red-500/10 border border-red-300 dark:border-red-500/30 text-red-800 dark:text-red-300 rounded-lg shadow-sm">
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 flex-shrink-0 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-sm"><?php echo isset($_GET['message']) ? htmlspecialchars($_GET['message']) : 'Something went wrong while processing the URL. Please try again later.'; ?></span>
+                                </div>
+                            </div>
+                        <?php elseif ($_GET['error'] == 'empty_search'): ?>
+                            <div class="mt-4 p-3 bg-red-100 dark:bg-red-500/10 border border-red-300 dark:border-red-500/30 text-red-800 dark:text-red-300 rounded-lg shadow-sm">
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 flex-shrink-0 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-sm">Please enter a product URL to search.</span>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
                 <div class="mt-4">
                     <p class="text-sm text-brand-text-secondary dark:text-dark-brand-text-secondary mb-6">Explore popular features:</p>
-                    <div class="flex flex-wrap justify-center items-center gap-3 sm:gap-4"><a href="#trending" class="bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle hover:bg-brand-border/50 dark:hover:bg-dark-brand-border/40 border border-brand-border/50 dark:border-dark-brand-border/50 hover:border-brand-accent/70 dark:hover:border-dark-brand-accent/60 text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-brand-text-primary dark:hover:text-dark-brand-text-primary text-sm font-medium py-2.5 px-5 rounded-full transition duration-200 shadow-sm hover:shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" /></svg>Price Charts</a><a href="#retailers" class="bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle hover:bg-brand-border/50 dark:hover:bg-dark-brand-border/40 border border-brand-border/50 dark:border-dark-brand-border/50 hover:border-brand-accent/70 dark:hover:border-dark-brand-accent/60 text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-brand-text-primary dark:hover:text-dark-brand-text-primary text-sm font-medium py-2.5 px-5 rounded-full transition duration-200 shadow-sm hover:shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h2.25m-2.25 0V8.25a.75.75 0 0 0-.75-.75h-5.25a.75.75 0 0 0-.75.75v12.75m0-12.75h-5.25a.75.75 0 0 0-.75.75v12.75m0 0H6m12 0a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v12A2.25 2.25 0 0 0 6.75 21H18Z" /></svg> Top Retailers</a><a href="#price-drops" class="bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle hover:bg-brand-border/50 dark:hover:bg-dark-brand-border/40 border border-brand-border/50 dark:border-dark-brand-border/50 hover:border-brand-accent/70 dark:hover:border-dark-brand-accent/60 text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-brand-text-primary dark:hover:text-dark-brand-text-primary text-sm font-medium py-2.5 px-5 rounded-full transition duration-200 shadow-sm hover:shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" /></svg> Deal Alerts</a></div>
-                </div>
+                    <div class="flex flex-wrap justify-center items-center gap-3 sm:gap-4"><a href="#trending" class="bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle hover:bg-brand-border/50 dark:hover:bg-dark-brand-border/40 border border-brand-border/50 dark:border-dark-brand-border/50 hover:border-brand-accent/70 dark:hover:border-dark-brand-accent/60 text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-brand-text-primary dark:hover:text-dark-brand-text-primary text-sm font-medium py-2.5 px-5 rounded-full transition duration-200 shadow-sm hover:shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" /></svg>Price Charts</a><a href="#retailers" class="bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle hover:bg-brand-border/50 dark:hover:bg-dark-brand-border/40 border border-brand-border/50 dark:border-dark-brand-border/50 hover:border-brand-accent/70 dark:hover:border-dark-brand-accent/60 text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-brand-text-primary dark:hover:text-dark-brand-text-primary text-sm font-medium py-2.5 px-5 rounded-full transition duration-200 shadow-sm hover:shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h2.25m-2.25 0V8.25a.75.75 0 0 0-.75-.75h-5.25a.75.75 0 0 0-.75.75v12.75m0-12.75h-5.25a.75.75 0 0 0-.75.75v12.75m0 0H6m12 0a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v12A2.25 2.25 0 0 0 6.75 21H18Z" /></svg> Top Retailers</a><a href="#price-drops" class="bg-brand-surface-subtle dark:bg-dark-brand-surface-subtle hover:bg-brand-border/50 dark:hover:bg-dark-brand-border/40 border border-brand-border/50 dark:border-dark-brand-border/50 hover:border-brand-accent/70 dark:hover:border-dark-brand-accent/60 text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-brand-text-primary dark:hover:text-dark-brand-text-primary text-sm font-medium py-2.5 px-5 rounded-full transition duration-200 shadow-sm hover:shadow-md flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" /></svg> Deal Alerts</a></div>                </div>
             </section>
 
             <!-- Average Statistics Banner (Keep as is) -->
@@ -365,16 +408,15 @@ require_once('includes/db_connect.php');
                         <a href="${product.link || '#'}" target="_blank" rel="noopener noreferrer" class="block">
                             <div class="bg-brand-header dark:bg-dark-brand-header rounded-xl overflow-hidden shadow-card dark:shadow-dark-card border border-brand-border/30 dark:border-dark-brand-border/50 transition duration-300 group-hover:shadow-lg dark:group-hover:shadow-dark-hover group-hover:border-brand-border/70 dark:group-hover:border-dark-brand-border/70 transform group-hover:-translate-y-1">
                                 <div class="relative">                                    <img src="${product.image || 'https://placehold.co/300x200/FAF6F2/3E362E?text=No+Image'}" alt="${product.name || 'Product Image'}" class="w-full h-40 object-contain bg-white dark:bg-gray-100 p-1" onerror="this.onerror=null; this.src='https://placehold.co/300x200/FAF6F2/93785B?text=Error';" loading="lazy">
-                                    ${discountPercentage !== null && discountPercentage > 0 ? `<span class="absolute top-2 left-2 bg-red-600 dark:bg-red-700 text-white text-[11px] font-bold px-2 py-0.5 rounded shadow-sm">-${discountPercentage}%</span>` : ''}
-                                    <button title="Add to Wishlist" 
+                                    ${discountPercentage !== null && discountPercentage > 0 ? `<span class="absolute top-2 left-2 bg-red-600 dark:bg-red-700 text-white text-[11px] font-bold px-2 py-0.5 rounded shadow-sm">-${discountPercentage}%</span>` : ''}                                    <button title="Add to Wishlist" 
                                            class="wishlist-btn absolute top-2 right-2 bg-brand-header/70 dark:bg-dark-brand-header/70 backdrop-blur-sm p-1.5 rounded-full text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-red-500 dark:hover:text-red-400 transition-colors duration-200 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 focus:opacity-100" 
                                            data-product-name="${product.name || 'Product'}" 
                                            data-product-url="${product.link || '#'}" 
                                            data-product-image="${product.image || ''}" 
-                                           data-current-price="${product.cur_price || 0}" 
-                                           data-original-price="${product.last_price || product.cur_price || 0}" 
-                                           data-retailer="${product.site_name || 'Unknown'}"
-                                           onclick="event.preventDefault(); addToWishlist(this);">
+                                           data-product-price="${product.cur_price || 0}" 
+                                           data-product-original-price="${product.last_price || product.cur_price || 0}" 
+                                           data-product-retailer="${product.site_name || 'Unknown'}"
+                                           onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist(this);">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                                         </svg>
@@ -467,9 +509,7 @@ require_once('includes/db_connect.php');
                 // Only create a row if there's a valid positive discount
                 if (discountPercentage === null || discountPercentage <= 0) {
                     return ''; // Don't render rows without a price drop
-                }
-
-                return `
+                }                return `
                     <tr class="hover:bg-brand-bg-light/40 dark:hover:bg-dark-brand-header/90 transition-colors duration-150">
                         <td class="px-4 py-3 whitespace-nowrap">
                             <div class="flex items-center">
@@ -582,7 +622,7 @@ require_once('includes/db_connect.php');
 <!-- Wishlist Notification Toast -->
 <div id="wishlist-toast" class="fixed bottom-4 right-4 bg-white dark:bg-gray-800 text-brand-text-primary dark:text-dark-brand-text-primary shadow-lg rounded-lg p-4 flex items-start max-w-xs z-50 transform translate-y-10 opacity-0 transition-all duration-300 invisible">
     <div id="toast-icon" class="mr-3 flex-shrink-0 text-green-500 dark:text-green-400">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
     </div>
@@ -591,7 +631,7 @@ require_once('includes/db_connect.php');
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" id="toast-detail">You can view your items in your wishlist</p>
     </div>
     <button onclick="hideToast()" class="ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
     </button>
@@ -665,7 +705,7 @@ require_once('includes/db_connect.php');
             if (data.success) {
                 // Success - show green checkmark
                 toastIcon.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 `;
@@ -679,7 +719,7 @@ require_once('includes/db_connect.php');
             } else {
                 // Error - show warning icon
                 toastIcon.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                 `;
@@ -694,7 +734,7 @@ require_once('includes/db_connect.php');
             console.error('Error:', error);
             // Show error toast
             document.getElementById('toast-icon').innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             `;

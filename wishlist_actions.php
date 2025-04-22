@@ -53,12 +53,24 @@ switch ($action) {
                     $original_price, 
                     $retailer
                 ]);
-                
-                if ($result) {
+                  if ($result) {
+                    $item_id = $pdo->lastInsertId();
+                    
+                    // Log wishlist activity
+                    require_once 'includes/activity_logger.php';
+                    logWishlistActivity($user_id, 'add', [
+                        'product_name' => $product_name,
+                        'product_url' => $product_url,
+                        'current_price' => $current_price,
+                        'original_price' => $original_price,
+                        'retailer' => $retailer,
+                        'item_id' => $item_id
+                    ]);
+                    
                     $response = [
                         'success' => true, 
                         'message' => 'Product added to your wishlist',
-                        'item_id' => $pdo->lastInsertId()
+                        'item_id' => $item_id
                     ];
                 } else {
                     $response = ['success' => false, 'message' => 'Failed to add product to wishlist'];
@@ -68,8 +80,7 @@ switch ($action) {
             $response = ['success' => false, 'message' => 'Missing required product information'];
         }
         break;
-        
-    case 'remove':
+          case 'remove':
         // Remove item from wishlist
         if (isset($_POST['wishlist_item_id'])) {
             $item_id = intval($_POST['wishlist_item_id']);
@@ -80,15 +91,86 @@ switch ($action) {
             
             // Then delete the wishlist item
             $stmt = $pdo->prepare("DELETE FROM wishlist_items WHERE id = ? AND user_id = ?");
-            $stmt->execute([$item_id, $user_id]);
-            
-            if ($stmt->rowCount() > 0) {
+            $stmt->execute([$item_id, $user_id]);              if ($stmt->rowCount() > 0) {
+                // Log wishlist removal activity
+                require_once 'includes/activity_logger.php';
+                
+                // Get product details before we log the removal
+                $product_info = [];
+                
+                if (isset($_POST['product_name'])) {
+                    $product_info['product_name'] = $_POST['product_name'];
+                }
+                
+                logWishlistActivity($user_id, 'remove', array_merge([
+                    'item_id' => $item_id,
+                    'removal_time' => date('Y-m-d H:i:s')
+                ], $product_info));
+                
                 $response = ['success' => true, 'message' => 'Product removed from your wishlist'];
             } else {
                 $response = ['success' => false, 'message' => 'Failed to remove product from wishlist'];
             }
+        } else if (isset($_POST['product_url'])) {
+            // Remove by product URL (when removing from product page)
+            $product_url = $_POST['product_url'];
+            
+            // Get the wishlist item ID first
+            $get_id_stmt = $pdo->prepare("SELECT id, product_name FROM wishlist_items WHERE user_id = ? AND product_url = ?");
+            $get_id_stmt->execute([$user_id, $product_url]);
+            $wishlist_item = $get_id_stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($wishlist_item) {
+                $item_id = $wishlist_item['id'];
+                
+                // First delete any associated price alerts
+                $delete_alerts = $pdo->prepare("DELETE FROM price_alerts WHERE wishlist_item_id = ? AND user_id = ?");
+                $delete_alerts->execute([$item_id, $user_id]);
+                
+                // Then delete the wishlist item
+                $stmt = $pdo->prepare("DELETE FROM wishlist_items WHERE id = ? AND user_id = ?");
+                $stmt->execute([$item_id, $user_id]);
+                
+                if ($stmt->rowCount() > 0) {
+                    // Log wishlist removal activity
+                    require_once 'includes/activity_logger.php';
+                      // Product info for logging
+                    $product_info = [
+                        'product_name' => $wishlist_item['product_name'] ?? 'Unknown Product'
+                    ];
+                    if (isset($_POST['product_name'])) {
+                        $product_info['product_name'] = $_POST['product_name'];
+                    }
+                    
+                    logWishlistActivity($user_id, 'remove', array_merge([
+                        'item_id' => $item_id,
+                        'removal_time' => date('Y-m-d H:i:s')
+                    ], $product_info));
+                    
+                    $response = ['success' => true, 'message' => 'Product removed from your wishlist'];
+                } else {
+                    $response = ['success' => false, 'message' => 'Failed to remove product from wishlist'];
+                }
+            }
+        } else {            $response = ['success' => false, 'message' => 'Missing wishlist item ID'];
+        }
+        break;
+        
+    case 'check':
+        // Check if the item is in the user's wishlist
+        if (isset($_POST['product_url'])) {
+            $product_url = $_POST['product_url'];
+            
+            $stmt = $pdo->prepare("SELECT id FROM wishlist_items WHERE user_id = ? AND product_url = ?");
+            $stmt->execute([$user_id, $product_url]);
+            
+            if ($stmt->rowCount() > 0) {
+                $response = ['success' => true, 'in_wishlist' => true, 'message' => 'Item is in wishlist'];
+            } else {
+                $response = ['success' => true, 'in_wishlist' => false, 'message' => 'Item is not in wishlist'];
+            }
         } else {
-            $response = ['success' => false, 'message' => 'Missing wishlist item ID'];
+            $response = ['success' => false, 'message' => 'Missing product URL'];
         }
         break;
         

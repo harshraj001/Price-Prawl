@@ -13,14 +13,14 @@ $config = [
     'db_charset' => 'utf8mb4',
     
     // SMTP Email Settings
-    'smtp_host' => 'smtp.example.com',
+    'smtp_host' => '',
     'smtp_port' => 587,
-    'smtp_username' => 'your_email@example.com', // Replace with your actual email
-    'smtp_password' => 'your_app_password', // Replace with your actual app password
-    'from_email' => 'your_email@example.com', // Replace with your actual email
+    'smtp_username' => '', // Replace with your actual email
+    'smtp_password' => '', // Replace with your actual app password
+    'from_email' => '', // Replace with your actual email
     
     // Application Settings
-    'site_url' => 'http://localhost/dashboard',
+    'site_url' => 'http://localhost:8080/PricePrawl',
     'site_name' => 'PricePrawl',
     
     // Security Settings

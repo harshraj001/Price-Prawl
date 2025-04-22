@@ -3,6 +3,8 @@ session_start(); // Ensure $_SESSION is available
 $pageTitle = 'Trending Deals';
 include_once 'includes/header.php';
 ?>
+<!-- Wishlist functionality script -->
+<script src="js/wishlist.js"></script>
 
 <!-- Main Content Area (Container opened in header.php) -->
 
@@ -23,12 +25,14 @@ include_once 'includes/header.php';
         <aside class="w-full md:w-56 lg:w-64 flex-shrink-0 mb-6 md:mb-0 relative">
             <div class="md:sticky md:top-[80px]">
                 <!-- Dropdown Toggle Button (Mobile/Tablet) -->
-                <button id="category-toggle-button" aria-haspopup="true" aria-expanded="false" class="md:hidden w-full flex justify-between items-center px-4 py-3 bg-brand-header dark:bg-dark-brand-header border border-brand-border/50 dark:border-dark-brand-border/50 rounded-lg shadow-sm text-brand-text-primary dark:text-dark-brand-text-primary mb-3 focus:outline-none focus:ring-2 focus:ring-brand-accent dark:focus:ring-dark-brand-accent">
-                    <span id="selected-category-name" class="font-semibold">Select Category...</span>
-                    <svg id="category-toggle-icon" class="w-5 h-5 text-brand-text-secondary dark:text-dark-brand-text-secondary transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
-                </button>
+                <div class="md:hidden sticky top-0 z-30 bg-brand-bg-light dark:bg-dark-brand-bg-light pb-3 pt-3">
+                    <button id="category-toggle-button" aria-haspopup="true" aria-expanded="false" class="w-full flex justify-between items-center px-4 py-3 bg-brand-header dark:bg-dark-brand-header border border-brand-border/50 dark:border-brand-border/50 rounded-lg shadow-sm text-brand-text-primary dark:text-dark-brand-text-primary focus:outline-none focus:ring-2 focus:ring-brand-accent dark:focus:ring-dark-brand-accent">
+                        <span id="selected-category-name" class="font-semibold">Select Category...</span>
+                        <svg id="category-toggle-icon" class="w-5 h-5 text-brand-text-secondary dark:text-dark-brand-text-secondary transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+                    </button>
+                </div>
                  <!-- Sidebar Content -->
-                <div id="categorySidebarContent" class="hidden md:block bg-brand-header dark:bg-dark-brand-header md:bg-transparent md:dark:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none shadow-md md:shadow-none border border-brand-border/30 dark:border-dark-brand-border/50 md:border-none md:mt-0 mt-2">
+                <div id="categorySidebarContent" class="hidden md:block bg-brand-header dark:bg-dark-brand-header md:bg-transparent md:dark:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none shadow-md md:shadow-none border border-brand-border/30 dark:border-dark-brand-border/50 md:border-none md:mt-0 mt-2 md:static absolute left-0 right-0 z-20">
                     <h2 class="text-lg font-semibold text-brand-text-primary dark:text-dark-brand-text-primary border-b border-brand-border/50 dark:border-dark-brand-border/50 pb-2 mb-3 hidden md:block">Categories</h2>
                     <div id="categorySidebarLinks" class="space-y-1 max-h-[50vh] md:max-h-none overflow-y-auto md:overflow-y-visible">
                          <div id="category-loader" class="flex items-center justify-center p-4"><div class="loader !m-0 !w-5 !h-5"></div></div>
@@ -152,14 +156,35 @@ include_once 'includes/header.php';
                 else { products.forEach(product => { /* ... (Keep product card generation with dark classes) ... */
                     const card = document.createElement('div'); card.className = 'product-card bg-brand-header dark:bg-dark-brand-header border border-brand-border/30 dark:border-dark-brand-border/50 rounded-lg shadow-card dark:shadow-dark-card hover:shadow-lg dark:hover:shadow-dark-hover transition-all duration-200 transform hover:-translate-y-1 group overflow-hidden flex flex-col'; let discountPercentage = product.price_drop_per; if (typeof discountPercentage !== 'number' || discountPercentage <= 0) { if (typeof product.last_price === 'number' && typeof product.cur_price === 'number' && product.last_price > product.cur_price && product.last_price > 0) { discountPercentage = Math.round(((product.last_price - product.cur_price) / product.last_price) * 100); } else { discountPercentage = null; } } const ratingValue = typeof product.rating === 'number' ? product.rating : -1; const ratingStars = getRatingStars(ratingValue); const ratingCountText = (typeof product.ratingCount === 'number' && product.ratingCount > 0) ? `${product.ratingCount.toLocaleString('en-IN')} Ratings` : ''; const hasRatingInfo = ratingValue >= 0 && ratingStars && ratingCountText;
                     
-                    // Check if user is logged in (PHP variable passed to JS)
-                    const isUserLoggedIn = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
-                    
                     card.innerHTML = `<div class="relative flex flex-col h-full">
                         <a href="${product.link || '#'}" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col">
-                            <div class="product-image-container relative aspect-square bg-white dark:bg-gray-100 p-2 overflow-hidden">
+                            <div class="product-image-container relative aspect-square bg-white dark:bg-gray-100 p-2 overflow-hidden flex items-center justify-center">
                                 <img src="${product.image || 'placeholder.png'}" alt="${product.name || 'Product Image'}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/200/FAF6F2/93785B?text=Error'; this.style.objectFit='contain';">
                                 ${discountPercentage ? `<span class="absolute top-1.5 left-1.5 bg-red-600 dark:bg-red-700 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm">${discountPercentage}% OFF</span>` : ''}
+                                
+                                <?php if (isset($_SESSION['user_id'])): ?>
+                                <!-- Wishlist Button (Logged in users) -->
+                                <button 
+                                    class="wishlist-btn absolute top-1.5 right-1.5 bg-brand-header/70 dark:bg-dark-brand-header/70 backdrop-blur-sm p-1.5 rounded-full text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-red-500 dark:hover:text-red-400 transition-colors duration-200 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 focus:opacity-100"
+                                    onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist(this)"
+                                    data-product-url="${product.link || '#'}" 
+                                    data-product-name="${product.name || ''}" 
+                                    data-product-image="${product.image || ''}"
+                                    data-product-price="${product.cur_price || ''}"
+                                    data-product-original-price="${product.last_price || ''}"
+                                    data-product-retailer="${product.site_name || ''}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                                    </svg>
+                                </button>
+                                <?php else: ?>
+                                <!-- Wishlist Button (Logged out users - redirects to login) -->
+                                <a href="login.php" class="absolute top-1.5 right-1.5 bg-brand-header/70 dark:bg-dark-brand-header/70 backdrop-blur-sm p-1.5 rounded-full text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-red-500 dark:hover:text-red-400 transition-colors duration-200 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 focus:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                                    </svg>
+                                </a>
+                                <?php endif; ?>
                             </div>
                             <div class="p-3 flex flex-col flex-grow">
                                 <p class="product-title text-sm font-medium text-brand-text-primary dark:text-dark-brand-text-primary mb-1 h-10 line-clamp-2 leading-tight" title="${product.name || ''}">${product.name || 'N/A'}</p>
@@ -175,21 +200,6 @@ include_once 'includes/header.php';
                                 </div>
                             </div>
                         </a>
-                        <!-- Wishlist Button -->
-                        <button 
-                            onclick="event.preventDefault(); event.stopPropagation(); ${isUserLoggedIn ? 'addToWishlist(this)' : 'showLoginModal()'}" 
-                            class="absolute top-2 right-2 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-800 text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-brand-accent dark:hover:text-dark-brand-accent transition-colors z-10"
-                            data-product-name="${product.name || ''}"
-                            data-product-url="${product.link || ''}"
-                            data-product-image="${product.image || ''}"
-                            data-current-price="${product.cur_price || ''}"
-                            data-original-price="${product.last_price || ''}"
-                            data-retailer="${product.site_name || ''}"
-                            aria-label="Add to wishlist">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                            </svg>
-                        </button>
                     </div>`; 
                     
                     productGrid.appendChild(card);
@@ -234,6 +244,184 @@ include_once 'includes/header.php';
             }
          });
 
+        // --- Page Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Existing code will remain here
+            checkWishlistStatus();
+        });
+        
+        // --- Wishlist Functionality ---
+        // Check wishlist status for all product cards
+        async function checkWishlistStatus() {
+            <?php if (!isset($_SESSION['user_id'])): ?>
+                return; // Do nothing if user is not logged in
+            <?php endif; ?>
+            
+            // Wait for products to load
+            setTimeout(async () => {
+                const wishlistBtns = document.querySelectorAll('.wishlist-btn');
+                if (wishlistBtns.length === 0) return;
+                
+                for (const btn of wishlistBtns) {
+                    const productUrl = btn.dataset.productUrl;
+                    if (!productUrl) continue;
+                    
+                    try {
+                        const checkData = new FormData();
+                        checkData.append('action', 'check');
+                        checkData.append('product_url', productUrl);
+                        
+                        const response = await fetch('wishlist_actions.php', {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: checkData
+                        });
+                        
+                        const data = await response.json();
+                        if (data.in_wishlist === true) {
+                            updateWishlistButton(btn, true);
+                        }
+                    } catch (error) {
+                        console.error('Error checking wishlist status:', error);
+                    }
+                }
+            }, 1000); // Wait for products to be rendered
+        }
+        
+        // Toggle wishlist status
+        async function toggleWishlist(btn) {
+            const productUrl = btn.dataset.productUrl;
+            const productName = btn.dataset.productName;
+            const productImage = btn.dataset.productImage;
+            const currentPrice = btn.dataset.productPrice;
+            const originalPrice = btn.dataset.productOriginalPrice;
+            const retailer = btn.dataset.productRetailer;
+            
+            if (!productUrl || !productName) {
+                console.error("Missing product data for wishlist action");
+                return;
+            }
+            
+            // Check if product is already in wishlist
+            try {
+                const checkData = new FormData();
+                checkData.append('action', 'check');
+                checkData.append('product_url', productUrl);
+                
+                const checkResponse = await fetch('wishlist_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: checkData
+                });
+                
+                const checkResult = await checkResponse.json();
+                const isInWishlist = checkResult.in_wishlist === true;
+                
+                // Create form data for add or remove
+                const actionData = new FormData();
+                if (isInWishlist) {
+                    // Remove from wishlist
+                    actionData.append('action', 'remove');
+                    actionData.append('product_url', productUrl);
+                } else {
+                    // Add to wishlist
+                    actionData.append('action', 'add');
+                    actionData.append('product_name', productName);
+                    actionData.append('product_url', productUrl);
+                    actionData.append('product_image', productImage || '');
+                    actionData.append('current_price', currentPrice || '');
+                    actionData.append('original_price', originalPrice || '');
+                    actionData.append('retailer', retailer || '');
+                }
+                
+                const actionResponse = await fetch('wishlist_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: actionData
+                });
+                
+                const actionResult = await actionResponse.json();
+                if (actionResult.success) {
+                    // Toggle visual state
+                    updateWishlistButton(btn, !isInWishlist);
+                    
+                    // Show feedback toast
+                    showToast(actionResult.message);
+                } else {
+                    showToast("Error: " + (actionResult.message || "Could not update wishlist"));
+                }
+            } catch (error) {
+                console.error('Error managing wishlist:', error);
+                showToast("Error updating wishlist. Please try again.");
+            }
+        }
+        
+        // Update wishlist button visual state
+        function updateWishlistButton(btn, isInWishlist) {
+            if (!btn) return;
+            
+            if (isInWishlist) {
+                // Item is in wishlist - show filled heart
+                btn.classList.add('bg-brand-surface-subtle', 'dark:bg-dark-brand-surface-subtle');
+                btn.classList.add('text-brand-accent', 'dark:text-dark-brand-accent');
+                btn.querySelector('svg').setAttribute('fill', 'currentColor');
+                btn.title = "Remove from Wishlist";
+            } else {
+                // Item is not in wishlist - show empty heart
+                btn.classList.remove('bg-brand-surface-subtle', 'dark:bg-dark-brand-surface-subtle');
+                btn.classList.remove('text-brand-accent', 'dark:text-dark-brand-accent');
+                btn.querySelector('svg').setAttribute('fill', 'none');
+                btn.title = "Add to Wishlist";
+            }
+        }
+        
+        // Show toast notification
+        function showToast(message) {
+            // Check if toast container already exists
+            let toastContainer = document.getElementById('toast-container');
+            
+            if (!toastContainer) {
+                // Create new toast container
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'fixed bottom-4 right-4 z-50 flex flex-col gap-2';
+                document.body.appendChild(toastContainer);
+            }
+            
+            // Create new toast
+            const toast = document.createElement('div');
+            toast.className = 'bg-brand-accent/90 dark:bg-dark-brand-accent/90 text-white px-4 py-2 rounded-md shadow-lg transform transition-all duration-300 flex items-center';
+            toast.innerHTML = `
+                <div class="mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <span>${message}</span>
+            `;
+            
+            // Add to container
+            toastContainer.appendChild(toast);
+            
+            // Remove after delay
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => {
+                    toast.remove();
+                    // Remove container if empty
+                    if (toastContainer.children.length === 0) {
+                        toastContainer.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+
         // --- Initial Data Load ---
         fetchAndDisplay(INITIAL_CATEGORY_SLUG, INITIAL_CATEGORY_NAME, true);
 
@@ -267,136 +455,3 @@ include_once 'includes/footer.php';
         </div>
     </div>
 </div>
-
-<!-- Wishlist Notification Toast -->
-<div id="wishlist-toast" class="fixed bottom-4 right-4 bg-white dark:bg-gray-800 text-brand-text-primary dark:text-dark-brand-text-primary shadow-lg rounded-lg p-4 flex items-start max-w-xs z-50 transform translate-y-10 opacity-0 transition-all duration-300 invisible">
-    <div id="toast-icon" class="mr-3 flex-shrink-0 text-green-500 dark:text-green-400">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-    </div>
-    <div class="flex-1">
-        <p id="toast-message" class="font-medium">Item added to wishlist</p>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" id="toast-detail">You can view your items in your wishlist</p>
-    </div>
-    <button onclick="hideToast()" class="ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-    </button>
-</div>
-
-<!-- Wishlist JavaScript -->
-<script>
-    // Function to add a product to the wishlist
-    function addToWishlist(button) {
-        // Get product data from button attributes
-        const productData = {
-            product_name: button.getAttribute('data-product-name'),
-            product_url: button.getAttribute('data-product-url'),
-            product_image: button.getAttribute('data-product-image'),
-            current_price: button.getAttribute('data-current-price'),
-            original_price: button.getAttribute('data-original-price'),
-            retailer: button.getAttribute('data-retailer')
-        };
-        
-        // Create form data
-        const formData = new FormData();
-        formData.append('action', 'add');
-        for (const key in productData) {
-            formData.append(key, productData[key]);
-        }
-        
-        // Send AJAX request to add to wishlist
-        fetch('wishlist_actions.php', {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Set appropriate toast icon and message
-            const toastIcon = document.getElementById('toast-icon');
-            const toastMessage = document.getElementById('toast-message');
-            const toastDetail = document.getElementById('toast-detail');
-            
-            if (data.success) {
-                // Success - show green checkmark
-                toastIcon.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                `;
-                toastMessage.textContent = 'Added to Wishlist';
-                toastDetail.textContent = productData.product_name;
-                
-                // Change the button appearance to indicate item is in wishlist
-                button.classList.add('text-red-500', 'dark:text-red-400');
-                button.classList.remove('text-brand-text-secondary', 'dark:text-dark-brand-text-secondary');
-                button.querySelector('svg').setAttribute('fill', 'currentColor');
-            } else {
-                // Error - show warning icon
-                toastIcon.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                `;
-                toastMessage.textContent = data.message || 'Could not add to wishlist';
-                toastDetail.textContent = 'Please try again';
-            }
-            
-            // Show the toast notification
-            showToast();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Show error toast
-            document.getElementById('toast-icon').innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            `;
-            document.getElementById('toast-message').textContent = 'Error adding to wishlist';
-            document.getElementById('toast-detail').textContent = 'Please try again later';
-            showToast();
-        });
-    }
-    
-    // Function to show toast notification
-    function showToast() {
-        const toast = document.getElementById('wishlist-toast');
-        toast.classList.remove('invisible', 'opacity-0', 'translate-y-10');
-        toast.classList.add('opacity-100', 'translate-y-0');
-        
-        // Auto hide after 5 seconds
-        setTimeout(hideToast, 5000);
-    }
-    
-    // Function to hide toast notification
-    function hideToast() {
-        const toast = document.getElementById('wishlist-toast');
-        toast.classList.add('opacity-0', 'translate-y-10');
-        setTimeout(() => {
-            toast.classList.add('invisible');
-        }, 300);
-    }
-    
-    // Function to show login modal
-    function showLoginModal() {
-        document.getElementById('login-modal').classList.remove('hidden');
-    }
-    
-    // Function to close login modal
-    function closeLoginModal() {
-        document.getElementById('login-modal').classList.add('hidden');
-    }
-    
-    // Close login modal when clicking outside
-    document.getElementById('login-modal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeLoginModal();
-        }
-    });
-</script>

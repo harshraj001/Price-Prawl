@@ -40,6 +40,12 @@ if ($isLoggedIn) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) . ' | PricePrawl' : 'PricePrawl - Smart Price Tracking'; ?></title>
+    
+    
+    <!-- Critical CSS Inline for initial render -->
+    <style>
+        body { background-color: #181818; } /* Dark background during load */
+    </style>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -49,6 +55,9 @@ if ($isLoggedIn) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Loader animations -->
+    <link rel="stylesheet" href="css/loader.css">
 
     <!-- Highcharts library (if needed on pages using this header) -->
     <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -110,10 +119,7 @@ if ($isLoggedIn) {
         .dark ::-webkit-scrollbar-track { background: #181818; } .dark ::-webkit-scrollbar-thumb { background-color: #4F4F4F; border: 2px solid #181818; } .dark ::-webkit-scrollbar-thumb:hover { background-color: #686868; }
         *:focus-visible { outline: 2px solid theme('colors.brand-accent'); outline-offset: 2px; border-radius: 3px; } .dark *:focus-visible { outline: 2px solid theme('colors.dark-brand-accent'); }
         .ticker-wrap { width: 100%; overflow: hidden; height: 40px; padding: 0; box-sizing: border-box; } .ticker-item { display: inline-flex; align-items: center; padding: 0 35px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap; height: 40px; flex-shrink: 0; }
-        /* Loader Style with Dark Mode Fix */
-        .loader { border: 4px solid rgba(172, 137, 104, 0.2); border-top-color: theme('colors.brand-accent'); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
-        .dark .loader { border: 4px solid rgba(193, 154, 107, 0.3); border-top-color: theme('colors.dark-brand-accent'); }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Removed duplicated loader styling - now in loader.css */
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } .hide-scrollbar::-webkit-scrollbar { display: none; }
         .dark .hero-heading { text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
         .scroll-button { opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; } .scroll-button.is-visible { opacity: 0.6; visibility: visible; } .scroll-button.is-visible:hover { opacity: 1; }
@@ -146,28 +152,30 @@ if ($isLoggedIn) {
                     </a>
                     
                     <!-- User account button/dropdown -->
-                    <div class="relative" x-data="{ open: false }">
-                        <?php if ($isLoggedIn): ?>
-                        <!-- User initial button when logged in -->
-                        <button @click="open = !open" @click.away="open = false" title="Account" class="p-2 rounded-full bg-brand-accent dark:bg-dark-brand-accent text-brand-text-on-accent dark:text-dark-brand-text-on-accent hover:bg-brand-accent-hover dark:hover:bg-dark-brand-accent-hover transition-colors duration-200 font-semibold w-8 h-8 flex items-center justify-center">
-                            <?php echo $userInitial ?: 'U'; ?>
-                        </button>
-                        
-                        <!-- Dropdown menu -->
-                        <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-brand-header dark:bg-dark-brand-header border border-brand-border/50 dark:border-dark-brand-border/50 ring-1 ring-black ring-opacity-5 z-50" style="display: none;">
-                            <div class="py-1">
-                                <a href="account.php" class="block px-4 py-2 text-sm text-brand-text-primary dark:text-dark-brand-text-primary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle">Account Settings</a>
-                                <hr class="my-1 border-brand-border/40 dark:border-dark-brand-border/40">
-                                <a href="logout.php" class="block px-4 py-2 text-sm text-brand-text-primary dark:text-dark-brand-text-primary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle">Log Out</a>
+                    <?php if ($isLoggedIn): ?>
+                    <div class="relative">
+                        <div x-data="{ open: false }">
+                            <!-- User initial button when logged in -->
+                            <button @click="open = !open" @click.outside="open = false" title="Account" class="p-2 rounded-full bg-brand-accent dark:bg-dark-brand-accent text-brand-text-on-accent dark:text-dark-brand-text-on-accent hover:bg-brand-accent-hover dark:hover:bg-dark-brand-accent-hover transition-colors duration-200 font-semibold w-8 h-8 flex items-center justify-center">
+                                <?php echo $userInitial ?: 'U'; ?>
+                            </button>
+                            
+                            <!-- Dropdown menu -->
+                            <div x-cloak x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-brand-header dark:bg-dark-brand-header border border-brand-border/50 dark:border-dark-brand-border/50 ring-1 ring-black ring-opacity-5 z-50">
+                                <div class="py-1">
+                                    <a href="account.php" class="block px-4 py-2 text-sm text-brand-text-primary dark:text-dark-brand-text-primary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle">Account Settings</a>
+                                    <hr class="my-1 border-brand-border/40 dark:border-dark-brand-border/40">
+                                    <a href="logout.php" class="block px-4 py-2 text-sm text-brand-text-primary dark:text-dark-brand-text-primary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle">Log Out</a>
+                                </div>
                             </div>
                         </div>
-                        <?php else: ?>
-                        <!-- Default account button when not logged in -->
-                        <a href="account.php" title="Account" class="p-2 rounded-full text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-brand-accent dark:hover:text-dark-brand-accent hover:bg-brand-surface-subtle/80 dark:hover:bg-dark-brand-surface-subtle/80 transition-colors duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-                        </a>
-                        <?php endif; ?>
                     </div>
+                    <?php else: ?>
+                    <!-- Default account button when not logged in - completely separated from Alpine.js -->
+                    <a href="account.php" title="Account" class="account-link-no-dropdown p-2 rounded-full text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-brand-accent dark:hover:text-dark-brand-accent hover:bg-brand-surface-subtle/80 dark:hover:bg-dark-brand-surface-subtle/80 transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                    </a>
+                    <?php endif; ?>
                     
                     <button id="hamburger-button" aria-label="Toggle Menu" aria-expanded="false" class="md:hidden p-2 rounded-full text-brand-text-secondary dark:text-dark-brand-text-secondary hover:text-brand-accent dark:hover:text-dark-brand-accent hover:bg-brand-surface-subtle/80 dark:hover:bg-dark-brand-surface-subtle/80 transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
@@ -186,7 +194,7 @@ if ($isLoggedIn) {
             <div class="container mx-auto px-4 sm:px-6 py-3 md:hidden border-t border-brand-border/40 dark:border-dark-brand-border/50">
                  <form action="search.php" method="GET" class="relative">
                     <span class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-brand-text-secondary dark:text-dark-brand-text-secondary pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg></span>
-                    <input type="text" name="query_mobile" placeholder="Search products..." class="w-full pl-11 pr-4 py-2.5 rounded-lg bg-brand-bg-light/80 dark:bg-dark-brand-bg-light/80 border border-brand-border/60 dark:border-dark-brand-border/70 focus:border-brand-accent dark:focus:border-dark-brand-accent focus:ring-1 focus:ring-brand-accent dark:focus:ring-dark-brand-accent focus:outline-none text-brand-text-primary dark:text-dark-brand-text-primary placeholder-brand-text-secondary dark:placeholder-dark-brand-text-secondary text-sm transition duration-200 shadow-inner"/>
+                    <input type="text" name="query_mobile" placeholder="Enter product URL..." class="w-full pl-11 pr-4 py-2.5 rounded-lg bg-brand-bg-light/80 dark:bg-dark-brand-bg-light/80 border border-brand-border/60 dark:border-dark-brand-border/70 focus:border-brand-accent dark:focus:border-dark-brand-accent focus:ring-1 focus:ring-brand-accent dark:focus:ring-dark-brand-accent focus:outline-none text-brand-text-primary dark:text-dark-brand-text-primary placeholder-brand-text-secondary dark:placeholder-dark-brand-text-secondary text-sm transition duration-200 shadow-inner"/>
                  </form>
             </div>
 

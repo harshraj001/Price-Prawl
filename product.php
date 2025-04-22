@@ -16,6 +16,18 @@ if (empty($pid) || empty($pos) || !ctype_digit((string)$pos)) {
     exit;
 }
 
+// Log product view activity if user is logged in
+if (isset($_SESSION['user_id'])) {
+    require_once 'includes/activity_logger.php';
+    logProductViewActivity($_SESSION['user_id'], [
+        'pid' => $pid,
+        'pos' => $pos,
+        'retailer' => getRetailerName($pos),
+        'url' => $url_param,
+        'view_time' => date('Y-m-d H:i:s')
+    ]);
+}
+
 // --- Helper Function ---
 function getRetailerName($pos) {
      $retailers = [
@@ -519,6 +531,73 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // --- WISHLIST AND ALERT FUNCTIONALITY ---
+    // Function to check if product is in wishlist
+    async function checkIfInWishlist() {
+        <?php if (!isset($_SESSION['user_id'])): ?>
+            return false;
+        <?php endif; ?>
+        
+        if (!initialProductData || !initialProductData.link) {
+            console.error("Cannot check wishlist status: Product data not available");
+            return false;
+        }
+        
+        try {
+            const checkData = new FormData();
+            checkData.append('action', 'check');
+            checkData.append('product_url', initialProductData.link);
+            
+            const response = await fetch('wishlist_actions.php', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: checkData
+            });
+            
+            const data = await response.json();
+            return data.in_wishlist === true;
+        } catch (error) {
+            console.error('Error checking wishlist status:', error);
+            return false;
+        }
+    }
+    
+    // Function to update wishlist button appearance
+    function updateWishlistButton(isInWishlist) {
+        const button = document.getElementById('add-wishlist-btn');
+        if (!button) return;
+        
+        if (isInWishlist) {
+            // Item is in wishlist - show filled heart
+            button.classList.add('bg-brand-surface-subtle', 'dark:bg-dark-brand-surface-subtle');
+            button.classList.add('text-brand-accent', 'dark:text-dark-brand-accent');
+            button.querySelector('svg').setAttribute('fill', 'currentColor');
+            button.innerHTML = button.innerHTML.replace(/<svg[\s\S]*?<\/svg>\s*Add to Wishlist/, 
+                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg> Remove from Wishlist`);
+        } else {
+            // Item is not in wishlist - show empty heart
+            button.classList.remove('bg-brand-surface-subtle', 'dark:bg-dark-brand-surface-subtle');
+            button.classList.remove('text-brand-accent', 'dark:text-dark-brand-accent');
+            button.querySelector('svg').setAttribute('fill', 'none');
+            button.innerHTML = button.innerHTML.replace(/<svg[\s\S]*?<\/svg>\s*Remove from Wishlist/, 
+                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg> Add to Wishlist`);
+        }
+    }
+    
+    // Check wishlist status when product data is loaded
+    fetchInitialProductData().then(() => {
+        if (initialProductData) {
+            checkIfInWishlist().then(isInWishlist => {
+                updateWishlistButton(isInWishlist);
+            });
+        }
+    });
+    
     // Add to Wishlist Button Listener
     document.getElementById('add-wishlist-btn')?.addEventListener('click', function() {
         // Check if user is logged in (we'll handle this on the server side too)
@@ -547,14 +626,25 @@ document.addEventListener('DOMContentLoaded', function() {
             retailer: initialProductData.site_name || document.getElementById('retailer-name').textContent || 'Unknown Retailer'
         };
         
+        // Determine if we're adding or removing from wishlist based on button text
+        const isRemoving = this.textContent.trim().includes('Remove from Wishlist');
+        const action = isRemoving ? 'remove' : 'add';
+        
         // Create form data
         const formData = new FormData();
-        formData.append('action', 'add');
-        for (const key in productData) {
-            formData.append(key, productData[key]);
+        formData.append('action', action);
+        
+        if (isRemoving) {
+            // For removal, we just need the product URL
+            formData.append('product_url', productData.product_url);
+        } else {
+            // For adding, we need all product details
+            for (const key in productData) {
+                formData.append(key, productData[key]);
+            }
         }
         
-        // Send AJAX request to add to wishlist
+        // Send AJAX request to add/remove from wishlist
         fetch('wishlist_actions.php', {
             method: 'POST',
             headers: {
@@ -564,15 +654,12 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
+            const actionText = isRemoving ? 'removed from' : 'added to';
             showWishlistToast(data.success, data.message, productData.product_name);
             
-            // Change button appearance to indicate item is in wishlist if successful
+            // Update button appearance if successful
             if (data.success) {
-                const button = document.getElementById('add-wishlist-btn');
-                button.classList.add('bg-brand-surface-subtle', 'dark:bg-dark-brand-surface-subtle');
-                button.classList.add('text-brand-accent', 'dark:text-dark-brand-accent');
-                button.querySelector('svg').setAttribute('fill', 'currentColor');
-                button.innerHTML = button.innerHTML.replace('Add to Wishlist', 'Added to Wishlist');
+                updateWishlistButton(!isRemoving);
             }
         })
         .catch(error => {

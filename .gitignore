@@ -1,7 +1,3 @@
-
-# Composer Dependencies
-/vendor/
-
 # User Uploaded Content
 /uploads/
 

@@ -76,15 +76,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $pdo->commit();
         
         // Clear registration data from session
-        unset($_SESSION['registration']);
-        
-        // Set user as logged in
+        unset($_SESSION['registration']);        // Set user as logged in
         $_SESSION['user_id'] = $userId;
         $_SESSION['user_email'] = $registrationData['email'];
         $_SESSION['user_name'] = $registrationData['first_name'];
         
-        // Redirect to account page with success message
-        header("Location: account.php?message=registration_complete");
+        // Log user registration activity
+        require_once 'includes/activity_logger.php';
+        logAuthActivity($userId, 'register', [
+            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'registration_time' => date('Y-m-d H:i:s')
+        ]);
+        
+        // Set welcome message and redirect to index page
+        $_SESSION['welcome_message'] = "registration_complete";
+        header("Location: index.php");
         exit();
         
     } catch (PDOException $e) {
