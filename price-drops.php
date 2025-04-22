@@ -104,7 +104,7 @@ include_once 'includes/header.php'; // Include header with theme setup
             return `
                 <div class="product-card bg-brand-header dark:bg-dark-brand-header border border-brand-border/30 dark:border-dark-brand-border/50 rounded-lg shadow-card dark:shadow-dark-card hover:shadow-lg dark:hover:shadow-dark-hover transition-all duration-200 transform hover:-translate-y-1 group overflow-hidden flex flex-col">
                     <div class="relative flex flex-col h-full">
-                        <a href="${product.link || '#'}" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col">
+                        <a href="search.php?query=${product.link || '#'}" rel="noopener noreferrer" class="flex-1 flex flex-col">
                             <div class="product-image-container relative aspect-square bg-white dark:bg-gray-100 p-2 overflow-hidden flex items-center justify-center">
                                 <img src="${product.image || 'placeholder.png'}" alt="${product.name || 'Product Image'}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/200/FAF6F2/93785B?text=Error'; this.style.objectFit='contain';">
                                 ${discountPercentage ? `<span class="absolute top-1.5 left-1.5 bg-red-600 dark:bg-red-700 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm">${discountPercentage}% OFF</span>` : ''}

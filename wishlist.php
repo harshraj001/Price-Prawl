@@ -104,7 +104,7 @@ include 'includes/header.php';
                                 <?php endif; ?>
                             </div>
                             <div class="flex space-x-2">
-                                <a href="<?= htmlspecialchars($item['product_url']) ?>" target="_blank" class="flex-1 px-4 py-2 bg-brand-accent dark:bg-dark-brand-accent hover:bg-brand-accent-hover dark:hover:bg-dark-brand-accent-hover text-brand-text-on-accent dark:text-dark-brand-text-on-accent text-sm font-medium rounded-lg text-center transition-colors">
+                                <a href="search.php?query=<?= htmlspecialchars($item['product_url']) ?>" class="flex-1 px-4 py-2 bg-brand-accent dark:bg-dark-brand-accent hover:bg-brand-accent-hover dark:hover:bg-dark-brand-accent-hover text-brand-text-on-accent dark:text-dark-brand-text-on-accent text-sm font-medium rounded-lg text-center transition-colors">
                                     View Product
                                 </a>
                                 <button type="button" class="px-4 py-2 border border-brand-border dark:border-dark-brand-border text-brand-text-primary dark:text-dark-brand-text-primary hover:bg-brand-surface-subtle dark:hover:bg-dark-brand-surface-subtle text-sm font-medium rounded-lg transition-colors" data-toggle="modal" data-target="#setAlertModal" data-item-id="<?= $item['id'] ?>">
@@ -189,7 +189,7 @@ include 'includes/header.php';
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right space-x-2">
-                                    <a href="<?= htmlspecialchars($alert['product_url']) ?>" target="_blank" class="text-sm text-brand-accent dark:text-dark-brand-accent hover:text-brand-accent-hover dark:hover:text-dark-brand-accent-hover transition-colors">
+                                    <a href="search.php?query=<?= htmlspecialchars($alert['product_url']) ?>" class="text-sm text-brand-accent dark:text-dark-brand-accent hover:text-brand-accent-hover dark:hover:text-dark-brand-accent-hover transition-colors">
                                         Visit
                                     </a>
                                     <form method="post" action="toggle_alert.php" class="inline-block">

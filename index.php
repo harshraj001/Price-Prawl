@@ -297,7 +297,6 @@ require_once('includes/db_connect.php');
                     <div class="p-6 sm:p-8 md:p-10">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
                             <div><h2 class="text-2xl md:text-3xl font-bold text-brand-text-primary dark:text-dark-brand-text-primary">Biggest Price Drops</h2><p class="text-brand-text-secondary dark:text-dark-brand-text-secondary mt-2 text-sm md:text-base">Products with significant recent price reductions</p></div>
-                            <a href="#" class="inline-flex items-center justify-center px-5 py-3 bg-brand-accent dark:bg-dark-brand-accent hover:bg-brand-accent-hover dark:hover:bg-dark-brand-accent-hover text-brand-text-on-accent dark:text-dark-brand-text-on-accent font-semibold rounded-lg transition-all duration-200 whitespace-nowrap shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-accent dark:focus:ring-offset-dark-brand-header flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>Set Alert Preferences</a>
                         </div>
 
                         <!-- Price Drop Table Container -->
@@ -412,7 +411,7 @@ require_once('includes/db_connect.php');
                 // Added 'group' class to the outer div
                 return `
                     <div class="w-64 md:w-72 flex-shrink-0 group">
-                        <a href="${product.link || '#'}" target="_blank" rel="noopener noreferrer" class="block">
+                        <a href="search.php?query=${product.link || '#'}"  rel="noopener noreferrer" class="block">
                             <div class="bg-brand-header dark:bg-dark-brand-header rounded-xl overflow-hidden shadow-card dark:shadow-dark-card border border-brand-border/30 dark:border-dark-brand-border/50 transition duration-300 group-hover:shadow-lg dark:group-hover:shadow-dark-hover group-hover:border-brand-border/70 dark:group-hover:border-dark-brand-border/70 transform group-hover:-translate-y-1">
                                 <div class="relative">                                    <img src="${product.image || 'https://placehold.co/300x200/FAF6F2/3E362E?text=No+Image'}" alt="${product.name || 'Product Image'}" class="w-full h-40 object-contain bg-white dark:bg-gray-100 p-1" onerror="this.onerror=null; this.src='https://placehold.co/300x200/FAF6F2/93785B?text=Error';" loading="lazy">
                                     ${discountPercentage !== null && discountPercentage > 0 ? `<span class="absolute top-2 left-2 bg-red-600 dark:bg-red-700 text-white text-[11px] font-bold px-2 py-0.5 rounded shadow-sm">-${discountPercentage}%</span>` : ''}                                    <button title="Add to Wishlist" 
@@ -529,7 +528,7 @@ require_once('includes/db_connect.php');
                                 </div>
                                 <div class="ml-3">
                                     <div class="text-sm font-medium text-brand-text-primary dark:text-dark-brand-text-primary line-clamp-2 leading-tight" title="${product.name || 'N/A'}">
-                                        <a href="${product.link || '#'}" target="_blank" rel="noopener noreferrer" class="hover:underline">${product.name || 'N/A'}</a>
+                                        <a href="search.php?query=${product.link || '#'}" rel="noopener noreferrer" class="hover:underline">${product.name || 'N/A'}</a>
                                     </div>
                                      <!-- Optionally add category if available in data -->
                                     <!-- <div class="text-xs text-brand-text-secondary dark:text-dark-brand-text-secondary">Category</div> -->
@@ -551,7 +550,7 @@ require_once('includes/db_connect.php');
                             </span>
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap text-right text-sm">
-                            <a href="${product.link || '#'}" target="_blank" rel="noopener noreferrer" class="font-semibold text-brand-accent dark:text-dark-brand-accent hover:text-brand-accent-hover dark:hover:text-dark-brand-accent-hover hover:underline">
+                            <a href="search.php?query=${product.link || '#'}" rel="noopener noreferrer" class="font-semibold text-brand-accent dark:text-dark-brand-accent hover:text-brand-accent-hover dark:hover:text-dark-brand-accent-hover hover:underline">
                                 View Deal
                             </a>
                         </td>
