@@ -2,7 +2,7 @@
 
 ## Smart Price Tracking Across Multiple E-Commerce Platforms
 
-![PricePrawl Logo](./banner.jpeg)
+![PricePrawl Banner](./banner.jpeg)
 
 PricePrawl is a comprehensive price tracking application that helps users monitor product prices across multiple e-commerce platforms. With real-time price tracking, historical price charts, and customizable alerts, PricePrawl empowers users to make informed purchasing decisions and save money.
 
